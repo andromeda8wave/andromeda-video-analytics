@@ -20,8 +20,7 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Local/private agent memory and analysis notes.
-Memento.md
+# Local/private agent notes.
 *.local.md
 
 # Local input manifests often contain private absolute paths and video IDs.
