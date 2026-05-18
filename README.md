@@ -85,4 +85,4 @@ outputs/<safe-video-stem>/
 
 `outputs/` и `.system/` считаются локальными рабочими артефактами и по умолчанию не коммитятся.
 
-Финальный отчёт по публикации не генерируется отдельной CLI-командой. Агент читает транскрипт, визуальный сценарий, `YOUTUBE_<id>.json` и `RUN_<run_id>.json`, затем сохраняет отчёт в `outputs/reports/YOUTUBE_REPORT_<id>.md` по инструкции из `SKILL.md`.
+Финальный отчёт по публикации не генерируется отдельной CLI-командой. Агент читает транскрипт, визуальный сценарий, `YOUTUBE_<id>.json` и `RUN_<run_id>.json`, затем сохраняет отчёт по инструкции из `SKILL.md`. Правило имени: название видео должно быть последней частью имени файла, например `outputs/reports/YOUTUBE_REPORT_<id>_<safe-video-title>.md`; если YouTube ID нет, используйте `outputs/reports/YOUTUBE_REPORT_<safe-video-title>.md`.

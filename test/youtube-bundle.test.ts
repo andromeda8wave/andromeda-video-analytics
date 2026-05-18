@@ -140,12 +140,12 @@ test("fetchYouTubeBundle returns public sections and skips analytics without OAu
 
 test("buildTrafficSourcesAnalyticsParams isolates one video and sorts by views", () => {
   const params = buildTrafficSourcesAnalyticsParams({
-    youtubeId: "8VZARvzXcRs",
+    youtubeId: "VIDEO12345A",
     startDate: "2026-05-04",
     endDate: "2026-05-16"
   });
 
-  assert.equal(params.filters, "video==8VZARvzXcRs");
+  assert.equal(params.filters, "video==VIDEO12345A");
   assert.equal(params.dimensions, "insightTrafficSourceType");
   assert.equal(params.metrics, "engagedViews,views,estimatedMinutesWatched");
   assert.equal(params.sort, "-views");
@@ -153,13 +153,13 @@ test("buildTrafficSourcesAnalyticsParams isolates one video and sorts by views",
 
 test("buildTrafficDetailAnalyticsParams requests supported detail report shape", () => {
   const params = buildTrafficDetailAnalyticsParams({
-    youtubeId: "8VZARvzXcRs",
+    youtubeId: "VIDEO12345A",
     startDate: "2026-05-04",
     endDate: "2026-05-16",
     sourceType: "YT_SEARCH"
   });
 
-  assert.equal(params.filters, "video==8VZARvzXcRs;insightTrafficSourceType==YT_SEARCH");
+  assert.equal(params.filters, "video==VIDEO12345A;insightTrafficSourceType==YT_SEARCH");
   assert.equal(params.dimensions, "insightTrafficSourceDetail");
   assert.equal(params.maxResults, "25");
   assert.equal(params.sort, "-views");
@@ -180,12 +180,12 @@ test("buildChannelBenchmarkAnalyticsParams compares top channel videos for the s
 
 test("buildRetentionAnalyticsParams uses one video filter and supported metrics", () => {
   const params = buildRetentionAnalyticsParams({
-    youtubeId: "8VZARvzXcRs",
+    youtubeId: "VIDEO12345A",
     startDate: "2026-05-04",
     endDate: "2026-05-16"
   });
 
-  assert.equal(params.filters, "video==8VZARvzXcRs");
+  assert.equal(params.filters, "video==VIDEO12345A");
   assert.equal(params.dimensions, "elapsedVideoTimeRatio");
   assert.equal(
     params.metrics,

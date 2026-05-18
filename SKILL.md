@@ -138,8 +138,12 @@ After `npm run analyze`, read:
 Create the report at:
 
 ```text
-outputs/reports/YOUTUBE_REPORT_<youtube_id>.md
+outputs/reports/YOUTUBE_REPORT_<youtube_id>_<safe-video-title>.md
 ```
+
+The final filename segment must be the video title, not only the YouTube ID. Keep the YouTube ID before the title when it helps uniqueness. If there is no YouTube ID, use `outputs/reports/YOUTUBE_REPORT_<safe-video-title>.md`.
+
+Build `<safe-video-title>` from the YouTube title when available, otherwise from the CLI/input title, otherwise from the local file stem. Sanitize it the same way as project output stems: keep readable letters/numbers, replace separators and filesystem-unsafe characters with `-`, and trim repeated/trailing dashes.
 
 Write the report in the user's language. Use emoji only in section headings and a few status labels; keep the analysis itself sober and specific.
 
