@@ -19,6 +19,16 @@ import type {
 
 const YOUTUBE_ID_PATTERN = /^[A-Za-z0-9_-]{11}$/;
 export const THUMBNAIL_CTR_STATUS = "unsupported_by_youtube_analytics_api" as const;
+const TRAFFIC_DETAIL_SOURCE_TYPES = [
+  "YT_SEARCH",
+  "RELATED_VIDEO",
+  "EXT_URL",
+  "SUBSCRIBER",
+  "YT_CHANNEL",
+  "YT_OTHER_PAGE",
+  "HASHTAGS",
+  "SOUND_PAGE"
+] as const;
 const YOUTUBE_ANALYTICS_SCOPE = [
   "https://www.googleapis.com/auth/yt-analytics.readonly",
   "https://www.googleapis.com/auth/youtube.readonly"
@@ -140,6 +150,14 @@ export async function fetchYouTubeBundle(args: YouTubeBundleArgs): Promise<YouTu
       analytics_summary: analytics.summary.status,
       analytics_daily: analytics.daily.status,
       analytics_retention: analytics.retention.status,
+      analytics_traffic_sources: analytics.traffic_sources.status,
+      analytics_traffic_details: analytics.traffic_details.status,
+      analytics_subscribed_status: analytics.subscribed_status.status,
+      analytics_geography: analytics.geography.status,
+      analytics_devices: analytics.devices.status,
+      analytics_demographics: analytics.demographics.status,
+      analytics_engagement: analytics.engagement.status,
+      channel_benchmark: analytics.channel_benchmark.status,
       thumbnail_ctr: THUMBNAIL_CTR_STATUS
     },
     video,
@@ -148,6 +166,7 @@ export async function fetchYouTubeBundle(args: YouTubeBundleArgs): Promise<YouTu
     comments,
     captions,
     analytics,
+    channel_benchmark: analytics.channel_benchmark,
     data_api: video.data,
     analytics_api: analytics.summary.data
   };
@@ -231,6 +250,56 @@ export function buildRetentionAnalyticsParams(args: {
   };
 }
 
+export function buildTrafficSourcesAnalyticsParams(args: {
+  youtubeId: string;
+  startDate: string;
+  endDate: string;
+}): Record<string, string> {
+  return {
+    ids: "channel==MINE",
+    startDate: args.startDate,
+    endDate: args.endDate,
+    metrics: "engagedViews,views,estimatedMinutesWatched",
+    dimensions: "insightTrafficSourceType",
+    filters: `video==${args.youtubeId}`,
+    sort: "-views"
+  };
+}
+
+export function buildTrafficDetailAnalyticsParams(args: {
+  youtubeId: string;
+  startDate: string;
+  endDate: string;
+  sourceType: string;
+}): Record<string, string> {
+  return {
+    ids: "channel==MINE",
+    startDate: args.startDate,
+    endDate: args.endDate,
+    metrics: "engagedViews,views,estimatedMinutesWatched",
+    dimensions: "insightTrafficSourceDetail",
+    filters: `video==${args.youtubeId};insightTrafficSourceType==${args.sourceType}`,
+    sort: "-views",
+    maxResults: "25"
+  };
+}
+
+export function buildChannelBenchmarkAnalyticsParams(args: {
+  startDate: string;
+  endDate: string;
+}): Record<string, string> {
+  return {
+    ids: "channel==MINE",
+    startDate: args.startDate,
+    endDate: args.endDate,
+    metrics:
+      "views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage,likes,comments,subscribersGained",
+    dimensions: "video",
+    sort: "-views",
+    maxResults: "10"
+  };
+}
+
 async function fetchAnalyticsBundle(args: YouTubeAnalyticsArgs): Promise<YouTubeAnalyticsBundle> {
   if (!args.youtubeId) {
     return buildSkippedAnalyticsBundle("skipped_missing_youtube_id");
@@ -288,13 +357,143 @@ async function fetchAnalyticsBundle(args: YouTubeAnalyticsArgs): Promise<YouTube
     }),
     token
   );
+  const trafficSources = await safeYouTubeAnalyticsRequest(
+    buildTrafficSourcesAnalyticsParams({
+      youtubeId: args.youtubeId,
+      startDate: args.startDate,
+      endDate: args.endDate
+    }),
+    token
+  );
+  const trafficDetails = await fetchTrafficDetails(args, token);
+  const subscribedStatus = await safeYouTubeAnalyticsRequest(
+    {
+      ids: "channel==MINE",
+      startDate: args.startDate,
+      endDate: args.endDate,
+      metrics: "engagedViews,views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
+      dimensions: "subscribedStatus",
+      filters: `video==${args.youtubeId}`,
+      sort: "-views"
+    },
+    token
+  );
+  const geography = await safeYouTubeAnalyticsRequest(
+    {
+      ids: "channel==MINE",
+      startDate: args.startDate,
+      endDate: args.endDate,
+      metrics: "engagedViews,views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage",
+      dimensions: "country",
+      filters: `video==${args.youtubeId}`,
+      sort: "-views",
+      maxResults: "25"
+    },
+    token
+  );
+  const devices = await safeYouTubeAnalyticsRequest(
+    {
+      ids: "channel==MINE",
+      startDate: args.startDate,
+      endDate: args.endDate,
+      metrics: "engagedViews,views,estimatedMinutesWatched",
+      dimensions: "deviceType",
+      filters: `video==${args.youtubeId}`,
+      sort: "-views"
+    },
+    token
+  );
+  const demographics = await safeYouTubeAnalyticsRequest(
+    {
+      ids: "channel==MINE",
+      startDate: args.startDate,
+      endDate: args.endDate,
+      metrics: "viewerPercentage",
+      dimensions: "ageGroup,gender",
+      filters: `video==${args.youtubeId}`
+    },
+    token
+  );
+  const engagement = await safeYouTubeAnalyticsRequest(
+    {
+      ids: "channel==MINE",
+      startDate: args.startDate,
+      endDate: args.endDate,
+      metrics: [
+        "engagedViews",
+        "views",
+        "likes",
+        "comments",
+        "shares",
+        "videosAddedToPlaylists",
+        "videosRemovedFromPlaylists",
+        "subscribersGained",
+        "subscribersLost"
+      ].join(","),
+      filters: `video==${args.youtubeId}`
+    },
+    token
+  );
+  const channelBenchmark = await safeYouTubeAnalyticsRequest(
+    buildChannelBenchmarkAnalyticsParams({
+      startDate: args.startDate,
+      endDate: args.endDate
+    }),
+    token
+  );
 
   return {
-    status: deriveAggregateAnalyticsStatus([summary, daily, retention]),
+    status: deriveAggregateAnalyticsStatus([
+      summary,
+      daily,
+      retention,
+      trafficSources,
+      trafficDetails,
+      subscribedStatus,
+      geography,
+      devices,
+      demographics,
+      engagement,
+      channelBenchmark
+    ]),
     summary,
     daily,
     retention,
+    traffic_sources: trafficSources,
+    traffic_details: trafficDetails,
+    subscribed_status: subscribedStatus,
+    geography,
+    devices,
+    demographics,
+    engagement,
+    channel_benchmark: channelBenchmark,
     thumbnail_ctr_status: THUMBNAIL_CTR_STATUS
+  };
+}
+
+async function fetchTrafficDetails(
+  args: YouTubeAnalyticsArgs & { youtubeId: string },
+  token: OAuthToken
+): Promise<YouTubeSubResult> {
+  const results: Record<string, YouTubeSubResult> = {};
+  for (const sourceType of TRAFFIC_DETAIL_SOURCE_TYPES) {
+    results[sourceType] = await safeYouTubeAnalyticsRequest(
+      buildTrafficDetailAnalyticsParams({
+        youtubeId: args.youtubeId,
+        startDate: args.startDate,
+        endDate: args.endDate,
+        sourceType
+      }),
+      token
+    );
+  }
+  const subResults = Object.values(results);
+  return {
+    status: deriveAggregateAnalyticsStatus(subResults),
+    data: {
+      source_types: [...TRAFFIC_DETAIL_SOURCE_TYPES],
+      results
+    }
   };
 }
 
@@ -349,6 +548,14 @@ function buildSkippedBundle(
       analytics_summary: analytics.summary.status,
       analytics_daily: analytics.daily.status,
       analytics_retention: analytics.retention.status,
+      analytics_traffic_sources: analytics.traffic_sources.status,
+      analytics_traffic_details: analytics.traffic_details.status,
+      analytics_subscribed_status: analytics.subscribed_status.status,
+      analytics_geography: analytics.geography.status,
+      analytics_devices: analytics.devices.status,
+      analytics_demographics: analytics.demographics.status,
+      analytics_engagement: analytics.engagement.status,
+      channel_benchmark: analytics.channel_benchmark.status,
       thumbnail_ctr: THUMBNAIL_CTR_STATUS
     },
     video,
@@ -357,17 +564,27 @@ function buildSkippedBundle(
     comments,
     captions,
     analytics,
+    channel_benchmark: analytics.channel_benchmark,
     data_api: video.data,
     analytics_api: analytics.summary.data
   };
 }
 
 function buildSkippedAnalyticsBundle(status: YouTubeRequestStatus): YouTubeAnalyticsBundle {
+  const skipped = skippedSubResult(status);
   return {
     status,
-    summary: skippedSubResult(status),
-    daily: skippedSubResult(status),
-    retention: skippedSubResult(status),
+    summary: skipped,
+    daily: skipped,
+    retention: skipped,
+    traffic_sources: skipped,
+    traffic_details: skipped,
+    subscribed_status: skipped,
+    geography: skipped,
+    devices: skipped,
+    demographics: skipped,
+    engagement: skipped,
+    channel_benchmark: skipped,
     thumbnail_ctr_status: THUMBNAIL_CTR_STATUS
   };
 }

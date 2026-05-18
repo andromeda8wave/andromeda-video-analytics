@@ -148,6 +148,14 @@ export interface YouTubeAnalyticsBundle {
   summary: YouTubeSubResult;
   daily: YouTubeSubResult;
   retention: YouTubeSubResult;
+  traffic_sources: YouTubeSubResult;
+  traffic_details: YouTubeSubResult;
+  subscribed_status: YouTubeSubResult;
+  geography: YouTubeSubResult;
+  devices: YouTubeSubResult;
+  demographics: YouTubeSubResult;
+  engagement: YouTubeSubResult;
+  channel_benchmark: YouTubeSubResult;
   thumbnail_ctr_status: "unsupported_by_youtube_analytics_api";
 }
 
@@ -160,6 +168,7 @@ export interface YouTubeBundleResult extends YouTubeCombinedResult {
   comments: YouTubeSubResult;
   captions: YouTubeSubResult;
   analytics: YouTubeAnalyticsBundle;
+  channel_benchmark: YouTubeSubResult;
 }
 
 export interface OpenRouterModelInfo {

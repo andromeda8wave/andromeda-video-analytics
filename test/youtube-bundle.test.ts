@@ -5,7 +5,10 @@ import path from "node:path";
 import test from "node:test";
 
 import {
+  buildChannelBenchmarkAnalyticsParams,
   buildRetentionAnalyticsParams,
+  buildTrafficDetailAnalyticsParams,
+  buildTrafficSourcesAnalyticsParams,
   fetchYouTubeBundle,
   THUMBNAIL_CTR_STATUS
 } from "../src/youtube.ts";
@@ -26,6 +29,8 @@ test("fetchYouTubeBundle skips every section without a YouTube id", async () => 
   assert.equal(result.channel.status, "skipped_missing_youtube_id");
   assert.equal(result.comments.status, "skipped_missing_youtube_id");
   assert.equal(result.analytics.status, "skipped_missing_youtube_id");
+  assert.equal(result.analytics.traffic_sources.status, "skipped_missing_youtube_id");
+  assert.equal(result.channel_benchmark.status, "skipped_missing_youtube_id");
 });
 
 test("fetchYouTubeBundle does not call YouTube Data API without an API key", async () => {
@@ -50,6 +55,7 @@ test("fetchYouTubeBundle does not call YouTube Data API without an API key", asy
     assert.equal(calls, 0);
     assert.equal(result.video.status, "skipped_missing_api_key");
     assert.equal(result.analytics.status, "skipped_missing_oauth");
+    assert.equal(result.analytics.traffic_sources.status, "skipped_missing_oauth");
     assert.equal(result.thumbnail_ctr_status, THUMBNAIL_CTR_STATUS);
   } finally {
     globalThis.fetch = originalFetch;
@@ -125,9 +131,51 @@ test("fetchYouTubeBundle returns public sections and skips analytics without OAu
     assert.equal(result.comments.status, "completed");
     assert.equal(result.captions.status, "completed");
     assert.equal(result.analytics.status, "skipped_missing_oauth");
+    assert.equal(result.analytics.traffic_sources.status, "skipped_missing_oauth");
+    assert.equal(result.channel_benchmark.status, "skipped_missing_oauth");
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test("buildTrafficSourcesAnalyticsParams isolates one video and sorts by views", () => {
+  const params = buildTrafficSourcesAnalyticsParams({
+    youtubeId: "8VZARvzXcRs",
+    startDate: "2026-05-04",
+    endDate: "2026-05-16"
+  });
+
+  assert.equal(params.filters, "video==8VZARvzXcRs");
+  assert.equal(params.dimensions, "insightTrafficSourceType");
+  assert.equal(params.metrics, "engagedViews,views,estimatedMinutesWatched");
+  assert.equal(params.sort, "-views");
+});
+
+test("buildTrafficDetailAnalyticsParams requests supported detail report shape", () => {
+  const params = buildTrafficDetailAnalyticsParams({
+    youtubeId: "8VZARvzXcRs",
+    startDate: "2026-05-04",
+    endDate: "2026-05-16",
+    sourceType: "YT_SEARCH"
+  });
+
+  assert.equal(params.filters, "video==8VZARvzXcRs;insightTrafficSourceType==YT_SEARCH");
+  assert.equal(params.dimensions, "insightTrafficSourceDetail");
+  assert.equal(params.maxResults, "25");
+  assert.equal(params.sort, "-views");
+});
+
+test("buildChannelBenchmarkAnalyticsParams compares top channel videos for the same period", () => {
+  const params = buildChannelBenchmarkAnalyticsParams({
+    startDate: "2026-05-04",
+    endDate: "2026-05-16"
+  });
+
+  assert.equal(params.dimensions, "video");
+  assert.equal(params.sort, "-views");
+  assert.equal(params.maxResults, "10");
+  assert.match(params.metrics, /averageViewPercentage/);
+  assert.equal(params.filters, undefined);
 });
 
 test("buildRetentionAnalyticsParams uses one video filter and supported metrics", () => {

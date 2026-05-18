@@ -113,6 +113,14 @@ outputs/<stem>/
   youtube.analytics-summary.json
   youtube.analytics-daily.json
   youtube.analytics-retention.json
+  youtube.analytics-traffic-sources.json
+  youtube.analytics-traffic-details.json
+  youtube.analytics-subscribed-status.json
+  youtube.analytics-geography.json
+  youtube.analytics-devices.json
+  youtube.analytics-demographics.json
+  youtube.analytics-engagement.json
+  youtube.channel-benchmark.json
 ```
 
 ## Report Workflow
@@ -125,6 +133,7 @@ After `npm run analyze`, read:
 - visual scenario Markdown
 - `YOUTUBE_<youtube_id>.json`
 - run manifest
+- any available extended YouTube artifacts: traffic sources/details, subscribed status, geography, devices, demographics, engagement, channel benchmark
 
 Create the report at:
 

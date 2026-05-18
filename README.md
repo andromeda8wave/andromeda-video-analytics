@@ -71,6 +71,14 @@ outputs/<safe-video-stem>/
   youtube.analytics-summary.json
   youtube.analytics-daily.json
   youtube.analytics-retention.json
+  youtube.analytics-traffic-sources.json
+  youtube.analytics-traffic-details.json
+  youtube.analytics-subscribed-status.json
+  youtube.analytics-geography.json
+  youtube.analytics-devices.json
+  youtube.analytics-demographics.json
+  youtube.analytics-engagement.json
+  youtube.channel-benchmark.json
   youtube.data-api.json
   youtube.analytics-api.json
 ```

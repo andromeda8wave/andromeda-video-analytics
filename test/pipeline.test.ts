@@ -114,8 +114,17 @@ test("analyzeVideos writes MVP artifacts using injected runtime dependencies", a
         summary: { status: "completed", data: { rows: [[1]] } },
         daily: { status: "completed", data: { rows: [] } },
         retention: { status: "completed", data: { rows: [] } },
+        traffic_sources: { status: "completed", data: { rows: [] } },
+        traffic_details: { status: "completed", data: { results: {} } },
+        subscribed_status: { status: "completed", data: { rows: [] } },
+        geography: { status: "completed", data: { rows: [] } },
+        devices: { status: "completed", data: { rows: [] } },
+        demographics: { status: "completed", data: { rows: [] } },
+        engagement: { status: "completed", data: { rows: [] } },
+        channel_benchmark: { status: "completed", data: { rows: [] } },
         thumbnail_ctr_status: "unsupported_by_youtube_analytics_api"
       },
+      channel_benchmark: { status: "completed", data: { rows: [] } },
       data_api: { items: [] },
       analytics_api: { rows: [[1]] }
     })
@@ -145,8 +154,18 @@ test("analyzeVideos writes MVP artifacts using injected runtime dependencies", a
   await stat(path.join(root, ".system", run.run_id, "youtube.analytics-summary.json"));
   await stat(path.join(root, ".system", run.run_id, "youtube.analytics-daily.json"));
   await stat(path.join(root, ".system", run.run_id, "youtube.analytics-retention.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-traffic-sources.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-traffic-details.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-subscribed-status.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-geography.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-devices.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-demographics.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.analytics-engagement.json"));
+  await stat(path.join(root, ".system", run.run_id, "youtube.channel-benchmark.json"));
 
   const runJson = await readFile(path.join(root, "outputs", "sample", `RUN_${run.run_id}.json`), "utf8");
   assert.match(runJson, /"run_id": "run_20260516T010203000Z_abcdef"/);
   assert.match(runJson, /youtube_retention_json/);
+  assert.match(runJson, /youtube_analytics_traffic_sources_json/);
+  assert.match(runJson, /youtube_channel_benchmark_json/);
 });

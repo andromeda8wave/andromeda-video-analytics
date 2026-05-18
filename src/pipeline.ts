@@ -134,6 +134,14 @@ async function analyzeOneVideo(
   await writeJsonFile(path.join(systemDir, "youtube.analytics-summary.json"), youtube.analytics.summary.data);
   await writeJsonFile(path.join(systemDir, "youtube.analytics-daily.json"), youtube.analytics.daily.data);
   await writeJsonFile(path.join(systemDir, "youtube.analytics-retention.json"), youtube.analytics.retention.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-traffic-sources.json"), youtube.analytics.traffic_sources.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-traffic-details.json"), youtube.analytics.traffic_details.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-subscribed-status.json"), youtube.analytics.subscribed_status.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-geography.json"), youtube.analytics.geography.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-devices.json"), youtube.analytics.devices.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-demographics.json"), youtube.analytics.demographics.data);
+  await writeJsonFile(path.join(systemDir, "youtube.analytics-engagement.json"), youtube.analytics.engagement.data);
+  await writeJsonFile(path.join(systemDir, "youtube.channel-benchmark.json"), youtube.channel_benchmark.data);
   await writeJsonFile(path.join(systemDir, "youtube.data-api.json"), youtube.data_api);
   await writeJsonFile(path.join(systemDir, "youtube.analytics-api.json"), youtube.analytics_api);
 
@@ -187,7 +195,15 @@ async function analyzeOneVideo(
       youtube_captions_json: relativeToRoot(root, path.join(systemDir, "youtube.captions.json")),
       youtube_analytics_summary_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-summary.json")),
       youtube_analytics_daily_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-daily.json")),
-      youtube_retention_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-retention.json"))
+      youtube_retention_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-retention.json")),
+      youtube_analytics_traffic_sources_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-traffic-sources.json")),
+      youtube_analytics_traffic_details_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-traffic-details.json")),
+      youtube_analytics_subscribed_status_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-subscribed-status.json")),
+      youtube_analytics_geography_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-geography.json")),
+      youtube_analytics_devices_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-devices.json")),
+      youtube_analytics_demographics_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-demographics.json")),
+      youtube_analytics_engagement_json: relativeToRoot(root, path.join(systemDir, "youtube.analytics-engagement.json")),
+      youtube_channel_benchmark_json: relativeToRoot(root, path.join(systemDir, "youtube.channel-benchmark.json"))
     }
   };
   await writeJsonFile(path.join(outputDir, `RUN_${runId}.json`), manifest);
