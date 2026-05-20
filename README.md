@@ -98,3 +98,7 @@ If there is no YouTube ID, use:
 ```text
 outputs/reports/YOUTUBE_REPORT_<safe-video-title>.md
 ```
+
+## License
+
+MIT-0. See [LICENSE](./LICENSE).

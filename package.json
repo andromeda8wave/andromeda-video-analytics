@@ -2,6 +2,7 @@
   "name": "video-analytics",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT-0",
   "type": "module",
   "scripts": {
     "analyze": "node --experimental-strip-types src/cli.ts analyze",
